@@ -2227,7 +2227,7 @@ Report generating algorithm: N/A
   - 3a2. Use case ends.
 
 - **4a. No students are eligible for a nudge under BR-war-non-submitter and BR-war-nudge-limit:**
-  - 4a1. The system informs the instructor that no students are eligible to receive a WAR nudge for the reporting week.
+  - 4a1. The system displays the non-submitters and their nudge status with no student selectable, and informs the instructor that no students are eligible to receive a WAR nudge for the reporting week.
   - 4a2. Use case ends.
 
 - **5a. The instructor attempts to continue without selecting any students:**
