@@ -2280,7 +2280,7 @@ This list is only for the instructor or for the course admin.
 
 **Assumptions:**
 **Open Issues:**
-- **Timeout with an unknown send outcome:** Decide how the system handles a timeout when it cannot determine whether the email service accepted a reminder. Such an outcome cannot be treated as a confirmed failure under extension 9a. Releasing a pending nudge reservation and retrying could send a duplicate if the email service already accepted the first message. The design must resolve how pending attempts are recorded, whether and when another attempt is permitted, and how the unknown outcome is shown to the instructor while preserving BR-war-nudge-limit.
+- **Timeout with an unknown send outcome:** Decide how the system handles when it cannot determine whether the email service accepted a reminder. The design must resolve how pending attempts are recorded, whether and when another attempt is permitted, and how the unknown outcome is shown to the instructor while preserving BR-war-nudge-limit.
 
 ## **Peer Evaluation**
 
