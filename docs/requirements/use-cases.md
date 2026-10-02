@@ -2181,6 +2181,107 @@ Report generating algorithm: N/A
 **Assumptions:**
 **Open Issues:**
 
+### **UC-WAR-instructor-nudge-student: The instructor sends nudge notifications to students who have not submitted their WAR**
+
+**UC ID and Name:** UC-WAR-instructor-nudge-student: Send nudge notifications to students who have not submitted their WAR
+**Created By:** Matthew Stafford
+**Date Created:** 2026-10-01
+**Primary Actor:** instructor
+**Secondary Actors:** email service (Gmail SMTP)
+**Trigger:** The instructor chooses to nudge students who have not submitted their WAR for the selected course section.
+**Description:** The instructor wants to send nudge notifications to students who have not submitted their WAR, so that those students are reminded to record their activities before the WAR due date and time.
+
+**Preconditions:**
+- PRE-1. The instructor is logged into the system.
+- PRE-2. The instructor is assigned to the course section, or is the course admin of the course (BR-section-scoped-access, BR-role-based-access).
+
+**Postconditions:**
+- POST-1. The email service has accepted a WAR reminder for delivery to each selected student who remains eligible under BR-war-non-submitter and BR-war-nudge-limit at the time of sending.
+- POST-2. The system has recorded which students were sent a reminder, the reporting week, the sending instructor, and the time sent.
+
+**Main Success Scenario:**
+1. The instructor chooses to nudge students who have not submitted their WAR for the selected course section.
+2. The system verifies that the course section has a configured WAR due day and due time per BR-war-nudge-window, determines the reporting week per BR-war-non-submitter, and verifies that it is active for the course section.
+3. The system verifies that the current date and time fall within the course section's nudge window per BR-war-nudge-window.
+4. The system displays non-submitters per BR-war-non-submitter, the reporting week, and the WAR due date and time. It indicates each student's nudge status for that reporting week and allows selection only when permitted by BR-war-nudge-limit.
+5. The instructor selects the students to receive a nudge.
+6. The system displays the selected recipients and reminder message and asks the instructor to confirm sending.
+7. The instructor confirms sending the reminders.
+8. The system verifies that the nudge window is still open per BR-war-nudge-window and rechecks each selected student's eligibility per BR-war-non-submitter and BR-war-nudge-limit immediately before sending.
+9. The system submits a WAR reminder identifying the reporting week and due date and time to the email service for each eligible selected student.
+10. On confirmation that the email service accepted a reminder for delivery, the system records it as successfully sent per BR-war-nudge-limit, including the recipient, reporting week, sending instructor, and time of acceptance.
+11. The system displays confirmation identifying the students who were sent reminders.
+12. The use case ends.
+
+**Extensions:**
+- **2a. The previous calendar week is not an active week for the course section:**
+  - 2a1. The system informs the instructor that WAR nudges are not available because no WAR is expected for that reporting week.
+  - 2a2. Use case ends.
+
+- **2b. The course section has no configured WAR due day or due time:**
+  - 2b1. The system sends no reminders and informs the instructor that the missing WAR due settings must be configured before nudges can be sent, per BR-war-nudge-window.
+  - 2b2. Use case ends.
+
+- **3a. Today is not the course section's configured WAR due day, or the current time is at or after its configured WAR due time:**
+  - 3a1. The system informs the instructor that the current date and time fall outside the nudge window defined by BR-war-nudge-window.
+  - 3a2. Use case ends.
+
+- **4a. No students are eligible for a nudge under BR-war-non-submitter and BR-war-nudge-limit:**
+  - 4a1. The system displays the non-submitters and their nudge status with no student selectable, and informs the instructor that no students are eligible to receive a WAR nudge for the reporting week.
+  - 4a2. Use case ends.
+
+- **5a. The instructor attempts to continue without selecting any students:**
+  - 5a1. The system asks the instructor to select at least one student.
+  - 5a2. The instructor returns to step 5 of the normal flow.
+
+- **7a. The instructor cancels sending the reminders:**
+  - 7a1. The system sends no reminders and records no students as nudged.
+  - 7a2. Use case ends.
+
+- **8a. The nudge window has closed while the instructor was selecting recipients or reviewing the message:**
+  - 8a1. The system sends no reminders and informs the instructor that the nudge window is closed per BR-war-nudge-window.
+  - 8a2. Use case ends.
+
+- **8b. One or more selected students are no longer eligible:**
+  - 8b1. The system excludes any selected student who no longer meets BR-war-non-submitter or has already received a nudge for the reporting week under BR-war-nudge-limit.
+  - 8b2. The system informs the instructor which students were excluded and why.
+  - 8b3. If eligible selected students remain, the system continues at step 9 with those students.
+  - 8b4. If no eligible selected students remain, the system informs the instructor that no reminders were sent, and the use case ends.
+
+- **9a. The email service rejects one or more reminders, or a send is confirmed to have failed before acceptance:**
+  - 9a1. The system identifies the confirmed failures and does not mark their recipients as successfully nudged, per BR-war-nudge-limit.
+  - 9a2. The system continues processing any remaining eligible selected recipients.
+  - 9a3. The system continues at step 10, recording only successfully sent reminders.
+  - 9a4. At step 11, the system displays which reminders were sent and which failed.
+
+**Priority:** High
+**Frequency of Use:** Typically weekly per course section, on its configured WAR due day before the due time, when the previous calendar week is active and eligible non-submitters remain. An instructor may send separate nudges to different eligible students during this window.
+**Business Rules:** BR-war-non-submitter (non-submitter eligibility), BR-war-nudge-limit (nudge allowance), BR-war-nudge-window (permitted sending times and required due settings), BR-section-scoped-access (instructor access to the selected course section), BR-role-based-access (authorized roles), BR-team-assignment-required (student team assignment), BR-student-lifecycle (student account eligibility), BR-active-weeks (active-week configuration and WAR authoring policy).
+
+**Associated Information:**
+
+Details:
+- The system identifies non-submitters in the selected course section according to BR-war-non-submitter.
+- The list displays each non-submitter's name and whether a nudge has already been successfully sent for the reporting week.
+- Students who have already been nudged remain visible but cannot be selected again, per BR-war-nudge-limit.
+- The reporting week and WAR due date and time are displayed above the list.
+- Access is restricted according to BR-section-scoped-access and BR-role-based-access.
+
+
+Example (list of students' names that the instructor receives):
+
+| student | Nudged for this reporting week | Select for nudge |
+| ---- | --- | --- |
+| John Doe | Yes | Disabled |
+| Lily Fisher | No | Available |
+| Tim Smith | No | Available |
+
+This list is only for the instructor or for the course admin.
+
+**Assumptions:**
+**Open Issues:**
+- **Timeout with an unknown send outcome:** Decide how the system handles when it cannot determine whether the email service accepted a reminder. The design must resolve how pending attempts are recorded, whether and when another attempt is permitted, and how the unknown outcome is shown to the instructor while preserving BR-war-nudge-limit.
+
 ## **Peer Evaluation**
 
 ### **UC-EVA-submit-evaluation: The student submits a peer evaluation for the previous week**
