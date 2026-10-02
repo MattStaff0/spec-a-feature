@@ -2196,7 +2196,7 @@ Report generating algorithm: N/A
 - PRE-2. The instructor is assigned to the course section, or is the course admin of the course (BR-section-scoped-access, BR-role-based-access).
 
 **Postconditions:**
-- POST-1. A WAR reminder email has been sent to each selected student who remains eligible under BR-war-non-submitter and BR-war-nudge-limit at the time of sending.
+- POST-1. The email service has accepted a WAR reminder for delivery to each selected student who remains eligible under BR-war-non-submitter and BR-war-nudge-limit at the time of sending.
 - POST-2. The system has recorded which students were sent a reminder, the reporting week, the sending instructor, and the time sent.
 
 **Main Success Scenario:**
@@ -2208,8 +2208,8 @@ Report generating algorithm: N/A
 6. The system displays the selected recipients and reminder message and asks the instructor to confirm sending.
 7. The instructor confirms sending the reminders.
 8. The system verifies that the nudge window is still open per BR-war-nudge-window and rechecks each selected student's eligibility per BR-war-non-submitter and BR-war-nudge-limit immediately before sending.
-9. The system emails each eligible selected student a WAR reminder identifying the reporting week and due date and time.
-10. The system records each sent reminder, including the recipient, reporting week, sending instructor, and time sent.
+9. The system submits a WAR reminder identifying the reporting week and due date and time to the email service for each eligible selected student.
+10. On confirmation that the email service accepted a reminder for delivery, the system records it as successfully sent per BR-war-nudge-limit, including the recipient, reporting week, sending instructor, and time of acceptance.
 11. The system displays confirmation identifying the students who were sent reminders.
 12. The use case ends.
 
@@ -2248,8 +2248,8 @@ Report generating algorithm: N/A
   - 8b3. If eligible selected students remain, the system continues at step 9 with those students.
   - 8b4. If no eligible selected students remain, the system informs the instructor that no reminders were sent, and the use case ends.
 
-- **9a. The email service fails to send one or more reminders:**
-  - 9a1. The system identifies the reminders that failed and does not mark their recipients as successfully nudged.
+- **9a. The email service rejects one or more reminders, or a send is confirmed to have failed before acceptance:**
+  - 9a1. The system identifies the confirmed failures and does not mark their recipients as successfully nudged, per BR-war-nudge-limit.
   - 9a2. The system continues processing any remaining eligible selected recipients.
   - 9a3. The system continues at step 10, recording only successfully sent reminders.
   - 9a4. At step 11, the system displays which reminders were sent and which failed.
@@ -2280,6 +2280,7 @@ This list is only for the instructor or for the course admin.
 
 **Assumptions:**
 **Open Issues:**
+- **Timeout with an unknown send outcome:** Decide how the system handles a timeout when it cannot determine whether the email service accepted a reminder. Such an outcome cannot be treated as a confirmed failure under extension 9a. Releasing a pending nudge reservation and retrying could send a duplicate if the email service already accepted the first message. The design must resolve how pending attempts are recorded, whether and when another attempt is permitted, and how the unknown outcome is shown to the instructor while preserving BR-war-nudge-limit.
 
 ## **Peer Evaluation**
 
